@@ -9,8 +9,8 @@
 #include <time.h>
 
 int SIM_AMOUNT = 25000;
-int START_BANKROLL = 100;
-int TAKE_PROFIT = 100;
+int START_BANKROLL = 10000;
+int TAKE_PROFIT = 10000;
 int BET_SIZE = 1;
 float SPIN_PROBABILITY = 18.0/38.0;
 

@@ -1,3 +1,5 @@
+// Note: Plinko is no longer planned to be in the app.
+//
 // Plinko distribution given # of rows and right probability
 //
 // To compile from repo root:
