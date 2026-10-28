@@ -32,11 +32,14 @@ Then fade in a chart showing the user's bankroll on the y-axis ($0–$200) and t
 
 **After bankruptcy, display:**
 
-> It took *x* spins to lose all your money. This was a random simulation with odds similar to real slot machines.
+> You lost all your money in **XXX spins.**
 >
+> This was a random simulation with odds similar to real slot machines.
+> 
 > The slot machine didn't take your money with luck, it used math.
->
-> Today, you will discover how casinos use math to make money.
+
+Button:
+> See how the math works ->
 
 ## Screen 2 - Expected Value
 
@@ -123,4 +126,20 @@ Question to answer: Can a betting strategy beat the house edge?
 
 Target time: 10 seconds
 
-> Thank you for trying my app! Retry these simulations with custom values in the Demo tab, play a fun probability mini game in the Game tab, or revisit this introduction anytime in Settings.
+>### Thank you for trying House Math!
+>
+> You've now seen why the house has an edge over time.
+
+> Choose what to explore next:
+
+Button:
+>#### Explore the simulations
+> 
+> Retry with different values and see how each simulation plays out.
+
+Button:
+>#### Test your intuition
+>
+> Play a quick game and see if you can tell which event is more likely.
+
+> *You can revisit this introduction anytime in Settings.*
