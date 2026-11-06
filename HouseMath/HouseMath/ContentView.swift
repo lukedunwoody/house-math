@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showSplash = true
     var body: some View {
-        TabView {
-            Tab("Demos", systemImage: "house") {
-                DemosView()
-            }
-            Tab("Game", systemImage: "gamecontroller") {
-                GameView()
-            }
-            Tab("Settings", systemImage: "gearshape") {
-                SettingsView()
+        ZStack {
+            PrimaryView()
+            
+            if showSplash {
+                SplashScreenView()
+                    .task(delaySplash)
             }
         }
+    }
+    
+    private func delaySplash() async {
+        try? await Task.sleep(nanoseconds: 3_000_000_000)
+        showSplash = false
     }
 }
 
