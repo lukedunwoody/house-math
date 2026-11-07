@@ -12,17 +12,19 @@ struct SplashScreenView: View {
         ZStack {
             Color.background
                 .ignoresSafeArea()
-            
+
             VStack {
                 Circle()
                     .frame(width: 80)
                     .foregroundStyle(.tint)
-                
+
                 Text("HOUSE MATH")
-                    .font(.title)
+                    .font(Font.custom("Work Sans", size: 32))
                     .foregroundStyle(.tint)
-                
-                Text("A look inside the casino")
+                    .kerning(32*0.15)
+                    .padding(.top, 2)
+
+                Text("Know the odds.")
                     .foregroundStyle(.text)
             }
         }
