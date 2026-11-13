@@ -10,11 +10,16 @@ import SwiftUI
 struct ContentView: View {
     @State private var showSplash = true
     @State private var showTransition = false
+    @State private var showOnboarding = true
     
     var body: some View {
         ZStack {
             if !showSplash {
-                PrimaryView()
+                if showOnboarding {
+                    OnboardingView(onFinish: hideOnboarding)
+                } else {
+                    PrimaryView()
+                }
             }
             
             if showSplash {
@@ -49,6 +54,10 @@ struct ContentView: View {
             nanoseconds: UInt64((Config.Splash.fadeInDur + Config.Splash.transitionHoldDur + Config.Splash.fadeOutDur) * 1_000_000_000)
         )
         showTransition = false
+    }
+    
+    private func hideOnboarding() {
+        showOnboarding = false
     }
 }
 

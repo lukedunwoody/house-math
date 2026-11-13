@@ -78,7 +78,7 @@ struct OnboardingView: View {
             }
 
             if step == 4 {
-                ThankYouView()
+                ThankYouView(onContinue: onFinish)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.move(edge: .trailing))
                     .shadow(color: .black.opacity(0.18), radius: 18, x: -8, y: 0)
