@@ -49,7 +49,7 @@ struct ContinueButton: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
                     .glassEffect(
-                        .regular.tint(Color.continueButton).interactive(),
+                        .regular.tint(Color(hex: "9B9477")).interactive(),
                         in: Capsule()
                     )
             }

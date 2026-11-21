@@ -10,12 +10,6 @@ import SwiftUI
 struct OnboardingView: View {
     let onFinish: () -> Void
     
-    init(
-        onFinish: @escaping () -> Void = {}
-    ) {
-        self.onFinish = onFinish
-    }
-    
     @State private var step = 0
     @State private var showHook = true
     @State private var isMovingForward = true
@@ -126,5 +120,5 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView()
+    OnboardingView {}
 }

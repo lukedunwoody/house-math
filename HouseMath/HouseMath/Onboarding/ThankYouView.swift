@@ -10,12 +10,6 @@ import SwiftUI
 struct ThankYouView: View {
     let onContinue: () -> Void
     
-    init(
-        onContinue: @escaping () -> Void = {}
-    ) {
-        self.onContinue = onContinue
-    }
-    
     var body: some View {
         ZStack {
             Color.background
@@ -35,5 +29,5 @@ struct ThankYouView: View {
 }
 
 #Preview {
-    ThankYouView()
+    ThankYouView {}
 }

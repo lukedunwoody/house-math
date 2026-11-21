@@ -19,7 +19,7 @@ struct SplashScreenView: View {
                     .foregroundStyle(.tint)
 
                 Text("HOUSE MATH")
-                    .font(Font.custom("Work Sans", size: 32))
+                    .font(.custom("Work Sans", size: 32))
                     .foregroundStyle(.tint)
                     .kerning(32*0.15)
                     .padding(.top, 2)
