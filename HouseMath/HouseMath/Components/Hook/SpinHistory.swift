@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct SpinHistory: View {
+    let amount0: Double
     let amount1: Double
     let amount2: Double
-    let amount3: Double
     
     var amounts: [Double] {
-        [amount1, amount2, amount3]
+        [amount0, amount1, amount2]
     }
     
     private func formatAmount(amount: Double) -> String {
@@ -67,6 +67,6 @@ struct SpinHistory: View {
         Color.background
             .ignoresSafeArea()
 
-        SpinHistory(amount1: -5, amount2: 5, amount3: -420.69)
+        SpinHistory(amount0: -5, amount1: 5, amount2: -420.69)
     }
 }

@@ -46,7 +46,7 @@ struct HookView: View {
                     
                     Spacer()
                     
-                    SpinHistory(amount1: -420.69, amount2: -420.69, amount3: -420.69)
+                    SpinHistory(amount0: -420.69, amount1: -420.69, amount2: -420.69)
                     
                     Spacer()
                     
