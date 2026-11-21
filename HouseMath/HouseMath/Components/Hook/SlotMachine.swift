@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct SlotReel: View {
+    let progress: Double
+    let image0: String
+    let image1: String
+    let image2: String
+    
     private var windowPath: Path {
         Path { path in
             path.move(to: CGPoint(x: 4, y: 0))
@@ -83,6 +88,9 @@ struct SlotReel: View {
         )
     }
     
+    private var imageSize: Double = 54
+    private var imageSpacing: Double = 12
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 4)
@@ -109,25 +117,24 @@ struct SlotReel: View {
             .shadow(color: .black.opacity(0.7), radius: 2)
             .frame(width: 76, height: 124)
             
-            VStack(spacing: 12) {
+            VStack(spacing: imageSpacing) {
                 Rectangle()
                     .fill(.clear)
-                    .frame(width: 0, height: 0) // 0-66
+                    .frame(width: 0, height: (progress * (imageSize + imageSpacing)))
                 
-                // TODO: Adjust transparency of the images depending on how centered they are
-                Image("slot-seven")
+                Image("slot-\(image0)")
                     .resizable()
-                    .frame(width: 54, height: 54)
-                Image("slot-seven")
+                    .frame(width: imageSize, height: imageSize)
+                Image("slot-\(image1)")
                     .resizable()
-                    .frame(width: 54, height: 54)
-                Image("slot-seven")
+                    .frame(width: imageSize, height: imageSize)
+                Image("slot-\(image2)")
                     .resizable()
-                    .frame(width: 54, height: 54)
+                    .frame(width: imageSize, height: imageSize)
                 
                 Rectangle()
                     .fill(.clear)
-                    .frame(width: 0, height: 0) // Inverse of top, 66 - x
+                    .frame(width: 0, height: (imageSize + imageSpacing) - (progress * (imageSize + imageSpacing)))
             }
             .frame(width: 76, height: 124)
             .clipShape(windowPath)
@@ -291,9 +298,9 @@ struct SlotMachine: View {
                 .frame(width: 312, height: 168)
 
             HStack(spacing: 8) {
-                SlotReel()
-                SlotReel()
-                SlotReel()
+                SlotReel(progress: 0.2, image0: "seven", image1: "seven", image2: "diamond")
+                SlotReel(progress: 0.5, image0: "grape", image1: "lemon", image2: "seven")
+                SlotReel(progress: 0.8, image0: "cherry", image1: "orange", image2: "seven")
             }
             .frame(width: 276, height: 144)
             
