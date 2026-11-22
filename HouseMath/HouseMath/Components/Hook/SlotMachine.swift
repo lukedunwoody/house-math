@@ -240,7 +240,7 @@ struct SlotMachine: View {
     }
 
     @State private var spinning = false
-    @State private var spinProgress: CGFloat = 1.5
+    @State private var spinProgress: [CGFloat] = [1.5, 1.5, 1.5]
 
     @State private var reelImages = (0..<3).map { _ in
         (0..<3).map { _ in Self.randomImage() }
@@ -249,8 +249,9 @@ struct SlotMachine: View {
     func spin(win: Bool, time: Double, imageAmount: Int) -> Void {
         guard !spinning, imageAmount >= 5, time > 0 else { return }
 
-        let currentVisibleImages = reelImages.map { images in
-            let step = Int(spinProgress.rounded(.down))
+        let currentVisibleImages = reelImages.indices.map { i in
+            let images = reelImages[i]
+            let step = Int(spinProgress[i].rounded(.down))
             return [step + 1, step, step - 1].map { index in
                 let wrappedIndex = (index % images.count + images.count) % images.count
                 return images[wrappedIndex]
@@ -258,7 +259,7 @@ struct SlotMachine: View {
         }
 
         spinning = true
-        spinProgress = 1.5
+        spinProgress = [1.5, 1.5, 1.5]
 
         var imagesBetween = (0..<3).map { _ in
             (0..<imageAmount).map { _ in Self.randomImage() }
@@ -289,8 +290,14 @@ struct SlotMachine: View {
 
         reelImages = imagesBetween
 
-        withAnimation(.spring(duration: time)) {
-            spinProgress = CGFloat(imageAmount) - 1.5
+        for i in 0...2 {
+            withAnimation(.easeIn(duration: time * 0.3)) {
+                spinProgress[i] = CGFloat(imageAmount) / 4
+            } completion: {
+                withAnimation(.linear(duration: (time * 0.7) - (-0.4 * Double(i - 2)))) {
+                    spinProgress[i] = CGFloat(imageAmount) - 1.5
+                }
+            }
         }
 
         Task {
@@ -379,9 +386,9 @@ struct SlotMachine: View {
                 .frame(width: 312, height: 168)
 
             HStack(spacing: 8) {
-                SlotReel(progress: Double(spinProgress), images: reelImages[0])
-                SlotReel(progress: Double(spinProgress), images: reelImages[1])
-                SlotReel(progress: Double(spinProgress), images: reelImages[2])
+                SlotReel(progress: Double(spinProgress[0]), images: reelImages[0])
+                SlotReel(progress: Double(spinProgress[1]), images: reelImages[1])
+                SlotReel(progress: Double(spinProgress[2]), images: reelImages[2])
             }
             .frame(width: 276, height: 144)
 
