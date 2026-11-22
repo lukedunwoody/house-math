@@ -65,7 +65,7 @@ struct OnboardingView: View {
             }
             
             if showHook {
-                HookView(onContinue: hideHook)
+                HookView(onContinue: hideHook, spinTime: 4, spinImageAmount: 40)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.identity)
                     .zIndex(1)

@@ -173,11 +173,15 @@ struct SlotReel: View, Animatable {
 }
 
 struct SlotMachine: View {
-    @Binding private var spinTrigger: Int
+    let spinTime: Double
+    let spinImageAmount: Int
 
-    init(spinTrigger: Binding<Int> = .constant(0)) {
-        self._spinTrigger = spinTrigger
+    struct SpinRequest {
+        var spinNumber: Int
+        var win: Bool
     }
+
+    @Binding var spinRequest: SpinRequest
 
     private var handlePathL: Path {
         Path { path in
@@ -246,9 +250,9 @@ struct SlotMachine: View {
         (0..<3).map { _ in Self.randomImage() }
     }
 
-    func spin(win: Bool, time: Double, imageAmount: Int) -> Void {
-        guard !spinning, imageAmount >= 5, time > 0 else { return }
-
+    func spin(win: Bool) -> Void {
+        guard !spinning, spinImageAmount >= 5, spinTime > 0 else { return }
+        
         let currentVisibleImages = reelImages.indices.map { i in
             let images = reelImages[i]
             let step = Int(spinProgress[i].rounded(.down))
@@ -257,25 +261,25 @@ struct SlotMachine: View {
                 return images[wrappedIndex]
             }
         }
-
+        
         spinning = true
         spinProgress = [1.5, 1.5, 1.5]
-
+        
         var imagesBetween = (0..<3).map { _ in
-            (0..<imageAmount).map { _ in Self.randomImage() }
+            (0..<spinImageAmount).map { _ in Self.randomImage() }
         }
-
+        
         var endImages = (0..<3).map { _ in Self.randomImage() }
-
+        
         if win {
             for i in 0..<3 {
                 endImages[i] = endImages[0]
             }
         } else {
             while (
-                endImages[0] != endImages[1] &&
-                endImages[1] != endImages[2] &&
-                endImages[0] != endImages[2]
+                endImages[0] == endImages[1] ||
+                endImages[1] == endImages[2] ||
+                endImages[0] == endImages[2]
             ) {
                 endImages = (0..<3).map { _ in Self.randomImage() }
             }
@@ -285,23 +289,23 @@ struct SlotMachine: View {
             for j in 0..<3 {
                 imagesBetween[i][2 - j] = currentVisibleImages[i][j]
             }
-            imagesBetween[i][(imageAmount - 2)] = endImages[i]
+            imagesBetween[i][(spinImageAmount - 2)] = endImages[i]
         }
 
         reelImages = imagesBetween
 
         for i in 0...2 {
-            withAnimation(.easeIn(duration: time * 0.3)) {
-                spinProgress[i] = CGFloat(imageAmount) / 4
+            withAnimation(.easeIn(duration: spinTime * 0.3)) {
+                spinProgress[i] = CGFloat(spinImageAmount) / 4
             } completion: {
-                withAnimation(.linear(duration: (time * 0.7) - (-0.4 * Double(i - 2)))) {
-                    spinProgress[i] = CGFloat(imageAmount) - 1.5
+                withAnimation(.linear(duration: (spinTime * 0.7) - (-0.4 * Double(i - 2)))) {
+                    spinProgress[i] = CGFloat(spinImageAmount) - 1.5
                 }
             }
         }
 
         Task {
-            try? await Task.sleep(nanoseconds: UInt64(time * 1_000_000_000))
+            try? await Task.sleep(nanoseconds: UInt64(spinTime * 1_000_000_000))
             spinning = false
         }
     }
@@ -462,25 +466,35 @@ struct SlotMachine: View {
                     .blendMode(.multiply)
             )
         }
-        .onChange(of: spinTrigger) { _ in
-            spin(win: true, time: 4, imageAmount: 40)
+        .onChange(of: spinRequest.spinNumber) { _, _ in
+            spin(win: spinRequest.win)
         }
     }
 }
 
 private struct SlotMachinePreview: View {
-    @State private var spinTrigger = 0
-
+    @State private var spinRequest = SlotMachine.SpinRequest(
+        spinNumber: 0,
+        win: true
+    )
+    
     var body: some View {
         ZStack {
             Color.background
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                SlotMachine(spinTrigger: $spinTrigger)
+                SlotMachine(
+                    spinTime: 4,
+                    spinImageAmount: 40,
+                    spinRequest: $spinRequest
+                )
 
                 Button("Spin") {
-                    spinTrigger += 1
+                    spinRequest = .init(
+                        spinNumber: spinRequest.spinNumber + 1,
+                        win: true
+                    )
                 }
             }
         }

@@ -10,10 +10,22 @@ import SwiftUI
 struct HookView: View {
     let onContinue: () -> Void
     
+    let spinTime: Double
+    let spinImageAmount: Int
+    
     @State private var stage = 1
     
     @State private var demoBalance: Double = 100
-    @State private var spinTrigger = 0
+
+    @State private var spinHistoryAmounts: [Double] = [-420.69, -420.69, -420.69]
+    
+    @State private var spinning = false
+    private let winSpin = Int.random(in: 1...3)
+    @State private var spinCount = 0
+    @State private var spinRequest = SlotMachine.SpinRequest(
+        spinNumber: 0,
+        win: false
+    )
     
     var body: some View {
         ZStack {
@@ -42,24 +54,45 @@ struct HookView: View {
                     VStack(spacing: 24) {
                         BalanceDisplay(demoBalance: demoBalance, betSize: 5)
                         
-                        SlotMachine(spinTrigger: $spinTrigger)
+                        SlotMachine(
+                            spinTime: spinTime,
+                            spinImageAmount: spinImageAmount,
+                            spinRequest: $spinRequest
+                        )
                     }
                     
                     Spacer()
                     
-                    SpinHistory(amount0: -420.69, amount1: -420.69, amount2: -420.69)
+                    SpinHistory(amounts: spinHistoryAmounts)
                     
                     Spacer()
                     
                     Button {
-                        spinTrigger += 1
+                        if !spinning && spinCount < 3 {
+                            spinning = true
+                            spinCount += 1
+                            var win = spinCount == winSpin
+                            var balanceChange: Double = (win ? 8 : -5)
+                            
+                            spinRequest = .init(
+                                spinNumber: spinCount,
+                                win: win
+                            )
+                            
+                            Task {
+                                try? await Task.sleep(nanoseconds: UInt64(spinTime * 1_000_000_000))
+                                spinHistoryAmounts[spinCount - 1] = balanceChange
+                                demoBalance += balanceChange
+                                spinning = false
+                            }
+                        }
                     } label: {
                         Text("Simulate Spin")
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(spinning ? .text : .white)
                             .frame(width: 340, height: 54)
                             .glassEffect(
-                                .regular.tint(Color(hex: "11A711").opacity(0.6)).interactive(),
+                                .regular.tint(spinning ? .glassPassive : Color(hex: "11A711").opacity(0.6)).interactive(),
                                 in: Capsule()
                             )
                     }
@@ -81,5 +114,5 @@ struct HookView: View {
 }
 
 #Preview {
-    HookView {}
+    HookView(onContinue: {}, spinTime: 4, spinImageAmount: 40)
 }
