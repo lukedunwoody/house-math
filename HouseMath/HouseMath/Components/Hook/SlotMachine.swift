@@ -7,12 +7,20 @@
 
 import SwiftUI
 
-struct SlotReel: View {
-    let progress: Double
-    let image0: String
-    let image1: String
-    let image2: String
-    
+struct SlotReel: View, Animatable {
+    var progress: Double
+    let images: [String]
+
+    var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    private func image(at index: Int) -> String {
+        let wrappedIndex = (index % images.count + images.count) % images.count
+        return images[wrappedIndex]
+    }
+
     private var windowPath: Path {
         Path { path in
             path.move(to: CGPoint(x: 4, y: 0))
@@ -87,11 +95,14 @@ struct SlotReel: View {
             angle: Angle(degrees: 90)
         )
     }
-    
+
     private var imageSize: Double = 54
     private var imageSpacing: Double = 12
-    
+
     var body: some View {
+        let step = Int(progress.rounded(.down))
+        let fractionalProgress = progress - Double(step)
+
         ZStack {
             RoundedRectangle(cornerRadius: 4)
                 .fill(frameGradient)
@@ -116,30 +127,30 @@ struct SlotReel: View {
             )
             .shadow(color: .black.opacity(0.7), radius: 2)
             .frame(width: 76, height: 124)
-            
+
             VStack(spacing: imageSpacing) {
                 Rectangle()
                     .fill(.clear)
-                    .frame(width: 0, height: (progress * (imageSize + imageSpacing)))
-                
-                Image("slot-\(image0)")
+                    .frame(width: 0, height: (fractionalProgress * (imageSize + imageSpacing)))
+
+                Image("slot-\(image(at: step + 1))")
                     .resizable()
                     .frame(width: imageSize, height: imageSize)
-                Image("slot-\(image1)")
+                Image("slot-\(image(at: step))")
                     .resizable()
                     .frame(width: imageSize, height: imageSize)
-                Image("slot-\(image2)")
+                Image("slot-\(image(at: step - 1))")
                     .resizable()
                     .frame(width: imageSize, height: imageSize)
-                
+
                 Rectangle()
                     .fill(.clear)
-                    .frame(width: 0, height: (imageSize + imageSpacing) - (progress * (imageSize + imageSpacing)))
+                    .frame(width: 0, height: (imageSize + imageSpacing) - (fractionalProgress * (imageSize + imageSpacing)))
             }
             .frame(width: 76, height: 124)
             .clipShape(windowPath)
             .opacity(0.9)
-                        
+
             windowPath.fill(
                 .white
                 .shadow(
@@ -162,6 +173,12 @@ struct SlotReel: View {
 }
 
 struct SlotMachine: View {
+    @Binding private var spinTrigger: Int
+
+    init(spinTrigger: Binding<Int> = .constant(0)) {
+        self._spinTrigger = spinTrigger
+    }
+
     private var handlePathL: Path {
         Path { path in
             path.move(to: CGPoint(x: 8, y: 0))
@@ -189,7 +206,7 @@ struct SlotMachine: View {
             path.closeSubpath()
         }
     }
-    
+
     private var handlePathR: Path {
         Path { path in
             path.move(to: CGPoint(x: 3, y: 0))
@@ -217,7 +234,62 @@ struct SlotMachine: View {
             path.closeSubpath()
         }
     }
-    
+
+    private static func randomImage() -> String {
+        return ["seven", "diamond", "cherry", "lemon", "grape", "orange"].randomElement()!
+    }
+
+    @State private var spinning = false
+    @State private var spinProgress: CGFloat = 0.5
+
+    @State private var reelImages = (0..<3).map { _ in
+        (0..<3).map { _ in Self.randomImage() }
+    }
+
+    func spin(win: Bool, time: Double, imageAmount: Int) -> Void {
+        guard !spinning, imageAmount >= 4, time > 0 else { return }
+        spinning = true
+        spinProgress = 0.5
+
+        var imagesBetween = (0..<3).map { _ in
+            (0..<imageAmount).map { _ in Self.randomImage() }
+        }
+
+        var endImages = (0..<3).map { _ in Self.randomImage() }
+
+        if win {
+            for i in 0..<3 {
+                endImages[i] = endImages[0]
+            }
+        } else {
+            while (
+                endImages[0] != endImages[1] &&
+                endImages[1] != endImages[2] &&
+                endImages[0] != endImages[2]
+            ) {
+                endImages = (0..<3).map { _ in Self.randomImage() }
+            }
+        }
+
+        for i in 0..<3 {
+            for j in 0..<3 {
+                imagesBetween[i][j] = reelImages[i][j]
+            }
+            imagesBetween[i][(imageAmount - 2)] = endImages[i]
+        }
+
+        reelImages = imagesBetween
+
+        withAnimation(.easeOut(duration: time)) {
+            spinProgress = CGFloat(imageAmount) - 1.5
+        }
+
+        Task {
+            try? await Task.sleep(nanoseconds: UInt64(time * 1_000_000_000))
+            spinning = false
+        }
+    }
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
@@ -251,9 +323,9 @@ struct SlotMachine: View {
                     )
                     .glassEffect(in: handlePathL)
                     .frame(width: 11, height: 110)
-                
+
                 Spacer()
-                
+
                 handlePathR
                     .fill(
                         Color(hex: "A1804D").opacity(0.6)
@@ -265,7 +337,7 @@ struct SlotMachine: View {
                     .frame(width: 11, height: 110)
             }
             .frame(width: 360, height: 110)
-            
+
             RoundedRectangle(cornerRadius: 8)
                 .fill(
                     EllipticalGradient(
@@ -298,12 +370,12 @@ struct SlotMachine: View {
                 .frame(width: 312, height: 168)
 
             HStack(spacing: 8) {
-                SlotReel(progress: 0.2, image0: "seven", image1: "seven", image2: "diamond")
-                SlotReel(progress: 0.5, image0: "grape", image1: "lemon", image2: "seven")
-                SlotReel(progress: 0.8, image0: "cherry", image1: "orange", image2: "seven")
+                SlotReel(progress: Double(spinProgress), images: reelImages[0])
+                SlotReel(progress: Double(spinProgress), images: reelImages[1])
+                SlotReel(progress: Double(spinProgress), images: reelImages[2])
             }
             .frame(width: 276, height: 144)
-            
+
             HStack {
                 Path { path in
                     path.move(to: CGPoint(x: 0, y: 0))
@@ -333,9 +405,9 @@ struct SlotMachine: View {
                 )
                 .shadow(color: .black, radius: 4)
                 .frame(width: 32, height: 36)
-                
+
                 Spacer()
-                
+
                 Path { path in
                     path.move(to: CGPoint(x: 32, y: 0))
                     path.addLine(to: CGPoint(x: 32, y: 36))
@@ -374,14 +446,31 @@ struct SlotMachine: View {
                     .blendMode(.multiply)
             )
         }
+        .onChange(of: spinTrigger) { _ in
+            spin(win: true, time: 4, imageAmount: 40)
+        }
+    }
+}
+
+private struct SlotMachinePreview: View {
+    @State private var spinTrigger = 0
+
+    var body: some View {
+        ZStack {
+            Color.background
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                SlotMachine(spinTrigger: $spinTrigger)
+
+                Button("Spin") {
+                    spinTrigger += 1
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    ZStack {
-        Color.background
-            .ignoresSafeArea()
-
-        SlotMachine()
-    }
+    SlotMachinePreview()
 }

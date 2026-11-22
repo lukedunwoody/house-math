@@ -13,6 +13,7 @@ struct HookView: View {
     @State private var stage = 1
     
     @State private var demoBalance: Double = 100
+    @State private var spinTrigger = 0
     
     var body: some View {
         ZStack {
@@ -41,7 +42,7 @@ struct HookView: View {
                     VStack(spacing: 24) {
                         BalanceDisplay(demoBalance: demoBalance, betSize: 5)
                         
-                        SlotMachine()
+                        SlotMachine(spinTrigger: $spinTrigger)
                     }
                     
                     Spacer()
@@ -51,7 +52,7 @@ struct HookView: View {
                     Spacer()
                     
                     Button {
-                        ()
+                        spinTrigger += 1
                     } label: {
                         Text("Simulate Spin")
                             .font(.system(size: 20, weight: .bold))
