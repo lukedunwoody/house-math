@@ -240,16 +240,25 @@ struct SlotMachine: View {
     }
 
     @State private var spinning = false
-    @State private var spinProgress: CGFloat = 0.5
+    @State private var spinProgress: CGFloat = 1.5
 
     @State private var reelImages = (0..<3).map { _ in
         (0..<3).map { _ in Self.randomImage() }
     }
 
     func spin(win: Bool, time: Double, imageAmount: Int) -> Void {
-        guard !spinning, imageAmount >= 4, time > 0 else { return }
+        guard !spinning, imageAmount >= 5, time > 0 else { return }
+
+        let currentVisibleImages = reelImages.map { images in
+            let step = Int(spinProgress.rounded(.down))
+            return [step + 1, step, step - 1].map { index in
+                let wrappedIndex = (index % images.count + images.count) % images.count
+                return images[wrappedIndex]
+            }
+        }
+
         spinning = true
-        spinProgress = 0.5
+        spinProgress = 1.5
 
         var imagesBetween = (0..<3).map { _ in
             (0..<imageAmount).map { _ in Self.randomImage() }
@@ -273,14 +282,14 @@ struct SlotMachine: View {
 
         for i in 0..<3 {
             for j in 0..<3 {
-                imagesBetween[i][j] = reelImages[i][j]
+                imagesBetween[i][2 - j] = currentVisibleImages[i][j]
             }
             imagesBetween[i][(imageAmount - 2)] = endImages[i]
         }
 
         reelImages = imagesBetween
 
-        withAnimation(.easeOut(duration: time)) {
+        withAnimation(.spring(duration: time)) {
             spinProgress = CGFloat(imageAmount) - 1.5
         }
 
