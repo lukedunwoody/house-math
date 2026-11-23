@@ -43,10 +43,14 @@ struct SpinHistory: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(colorFromAmount(amount: amounts[i]))
+                            .animation(.easeInOut(duration: 0.8), value: amounts[i])
                             .glassEffect(.clear.tint(.glassPassive), in: RoundedRectangle(cornerRadius: 16))
                             .frame(width: 62, height: 32)
                         
                         Text(formatAmount(amount: amounts[i]))
+                            .animation(.easeInOut(duration: 0.8), value: amounts[i])
+                            .contentTransition(.numericText(countsDown: true))
+                            .monospacedDigit()
                             .foregroundStyle(.white)
                             .font(.system(size: 13))
                     }
