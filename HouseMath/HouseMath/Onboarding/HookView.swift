@@ -17,7 +17,7 @@ struct HookView: View {
     
     @State private var demoBalance: Double = 100
 
-    @State private var spinHistoryAmounts: [Double] = [-420.69, -420.69, -420.69]
+    @State private var spinHistoryAmounts: [Double?] = [nil, nil, nil]
     
     @State private var spinning = false
     private let winSpin = Int.random(in: 1...3)

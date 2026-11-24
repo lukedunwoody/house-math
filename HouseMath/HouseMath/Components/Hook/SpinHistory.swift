@@ -8,24 +8,24 @@
 import SwiftUI
 
 struct SpinHistory: View {
-    let amounts: [Double]
+    let amounts: [Double?]
     
-    private func formatAmount(amount: Double) -> String {
+    private func formatAmount(amount: Double?) -> String {
+        if amount == nil {
+            return "—"
+        }
         if amount == 0 {
             return "0.00"
         }
-        if amount == -420.69 {
-            return "—"
-        }
         
-        let formattedAmount = String(format: "%.2f", abs(amount))
-        return "\(amount < 0 ? "-" : "+")\(formattedAmount)"
+        let formattedAmount = String(format: "%.2f", abs(amount!))
+        return "\(amount! < 0 ? "-" : "+")\(formattedAmount)"
     }
     
-    private func colorFromAmount(amount: Double) -> Color {
-        if amount == -420.69 || amount == 0 {
+    private func colorFromAmount(amount: Double?) -> Color {
+        if amount == nil || amount == 0 {
             return .glassPassive.opacity(0.2)
-        } else if amount > 0 {
+        } else if amount! > 0 {
             return Color(hex: "018800").opacity(0.4)
         } else {
             return Color(hex: "AD0100").opacity(0.4)
@@ -65,6 +65,6 @@ struct SpinHistory: View {
         Color.background
             .ignoresSafeArea()
 
-        SpinHistory(amounts: [-5, 5, -420.69])
+        SpinHistory(amounts: [-5, 5, nil])
     }
 }
