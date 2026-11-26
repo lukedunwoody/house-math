@@ -14,7 +14,9 @@ struct SplashScreenView: View {
                 .ignoresSafeArea()
 
             VStack {
-                Circle()
+                Image("logo")
+                    .resizable()
+                    .scaledToFit()
                     .frame(width: 80)
                     .foregroundStyle(.tint)
 

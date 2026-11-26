@@ -19,7 +19,7 @@ struct SplashTransitionView: View {
                 Circle()
                     .foregroundStyle(.tint)
                     .frame(width: diag, height: diag)
-                    .scaleEffect(isExpanded ? 1 : 0, anchor: UnitPoint(x: 0.5, y: 0.47))
+                    .scaleEffect(isExpanded ? 1 : 0, anchor: UnitPoint(x: 0.5, y: 0.475))
                     .animation(
                         .easeInOut(duration: Config.Splash.fadeInDur),
                         value: isExpanded
