@@ -174,7 +174,7 @@ struct HookView: View {
                             SlotMachine(spinRequest: $spinRequest)
                                 .opacity(1 - mainTransitionProgress)
 
-                            HookChart()
+                            BalanceChart()
                                 .frame(width: 344, height: 200)
                                 .opacity(mainTransitionProgress)
                         }

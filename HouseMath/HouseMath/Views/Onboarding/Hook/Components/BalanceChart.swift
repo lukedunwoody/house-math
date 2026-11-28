@@ -1,5 +1,5 @@
 //
-//  HookChart.swift
+//  BalanceChart.swift
 //  HouseMath
 //
 //  Created by Luke Dunwoody on 2026-11-27.
@@ -14,7 +14,7 @@ struct DataPoint: Identifiable {
     let balance: Double
 }
 
-struct HookChart: View {
+struct BalanceChart: View {
     let data: [DataPoint] = [
         DataPoint(spinNumber: 0, balance: 100),
         DataPoint(spinNumber: 1, balance: 95),
@@ -90,7 +90,7 @@ struct HookChart: View {
         Color.background
             .ignoresSafeArea()
 
-        HookChart()
+        BalanceChart()
             .frame(width: 344, height: 200)
     }
 }
