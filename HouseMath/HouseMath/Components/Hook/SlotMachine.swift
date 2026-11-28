@@ -178,6 +178,7 @@ struct SlotMachine: View {
         var win: Bool
         var spinTime: Double
         var spinImageAmount: Int
+        var spinVolume: Float
     }
 
     @Binding var spinRequest: SpinRequest
@@ -249,7 +250,7 @@ struct SlotMachine: View {
         (0..<3).map { _ in Self.randomImage() }
     }
 
-    func spin(win: Bool, spinTime: Double, spinImageAmount: Int) -> Void {
+    func spin(win: Bool, spinTime: Double, spinImageAmount: Int, spinVolume: Float) -> Void {
         guard !spinning, spinTime > 0, spinImageAmount >= 5 else { return }
         
         let currentVisibleImages = reelImages.indices.map { i in
@@ -294,15 +295,32 @@ struct SlotMachine: View {
         reelImages = imagesBetween
 
         for i in 0...2 {
+            let betweenStopTime = spinTime * 0.1
+            
             withAnimation(.easeIn(duration: spinTime * 0.3)) {
                 spinProgress[i] = CGFloat(spinImageAmount) / 4
             } completion: {
-                withAnimation(.linear(duration: (spinTime * 0.7) - (-0.4 * Double(i - 2)))) {
+                withAnimation(.linear(duration: (spinTime * 0.7) + betweenStopTime * Double(i - 2))) {
                     spinProgress[i] = CGFloat(spinImageAmount) - 1.5
+                } completion: {
+                    SoundManager.shared.play(
+                        "slot-stop",
+                        extension: "wav",
+                        volume: (spinVolume * 0.7),
+                        duration: betweenStopTime
+                    )
                 }
             }
         }
 
+        SoundManager.shared.play(
+            "slot-spin",
+            extension: "wav",
+            duration: spinTime,
+            looping: true,
+            fadeIn: spinTime * 0.8
+        )
+        
         Task {
             try? await Task.sleep(for: .seconds(spinTime))
             spinning = false
@@ -469,7 +487,8 @@ struct SlotMachine: View {
             spin(
                 win: spinRequest.win,
                 spinTime: spinRequest.spinTime,
-                spinImageAmount: spinRequest.spinImageAmount
+                spinImageAmount: spinRequest.spinImageAmount,
+                spinVolume: spinRequest.spinVolume
             )
         }
     }
@@ -480,7 +499,8 @@ private struct SlotMachinePreview: View {
         spinNumber: 0,
         win: true,
         spinTime: 4,
-        spinImageAmount: 40
+        spinImageAmount: 40,
+        spinVolume: 1.0
     )
     
     var body: some View {
@@ -496,7 +516,8 @@ private struct SlotMachinePreview: View {
                         spinNumber: spinRequest.spinNumber + 1,
                         win: true,
                         spinTime: 4,
-                        spinImageAmount: 40
+                        spinImageAmount: 40,
+                        spinVolume: 0.7
                     )
                 }
             }

@@ -30,7 +30,8 @@ struct HookView: View {
         spinNumber: 0,
         win: false,
         spinTime: Config.Hook.baseSpinTime,
-        spinImageAmount: Config.Hook.baseSpinImageAmount
+        spinImageAmount: Config.Hook.baseSpinImageAmount,
+        spinVolume: Config.Hook.baseSpinVolume
     )
     
     func spinHistoryAppend(amount: Double) -> Void {
@@ -52,6 +53,7 @@ struct HookView: View {
         win: Bool,
         spinTime: Double,
         spinImageAmount: Int,
+        spinVolume: Float,
         afterSpinAction: @escaping () -> Void
     ) -> Void {
         guard !spinning else { return }
@@ -65,7 +67,8 @@ struct HookView: View {
             spinNumber: spinCount,
             win: win,
             spinTime: spinTime,
-            spinImageAmount: spinImageAmount
+            spinImageAmount: spinImageAmount,
+            spinVolume: spinVolume
         )
         
         Task {
@@ -99,6 +102,7 @@ struct HookView: View {
                 win: spinCount == winSpin,
                 spinTime: Config.Hook.baseSpinTime,
                 spinImageAmount: Config.Hook.baseSpinImageAmount,
+                spinVolume: Config.Hook.baseSpinVolume,
                 afterSpinAction: afterSpinAction
             )
         }
@@ -109,39 +113,24 @@ struct HookView: View {
             autoSpinning = true
             spinCount += 1
             
-            Task {
-                spin(
-                    win: spinCount == winAutoSpin,
-                    spinTime: Config.Hook.autoSpinDurs[0],
-                    spinImageAmount: 40,
-                    afterSpinAction: { spinning = false }
-                )
-            }
+            let autoSpinDelays: [Double] = [
+                0,
+                Config.Hook.autoSpinTimes[0] + Config.Hook.autoSpinWaitTime,
+                Config.Hook.autoSpinTimes[0] + Config.Hook.autoSpinTimes[1] + Config.Hook.autoSpinWaitTime * 2
+            ]
             
-            Task {
-                try? await Task.sleep(for: .seconds(
-                    Config.Hook.autoSpinDurs[0] + Config.Hook.autoSpinWaitTime
-                ))
-                
-                spin(
-                    win: spinCount == winAutoSpin,
-                    spinTime: Config.Hook.autoSpinDurs[1],
-                    spinImageAmount: 35,
-                    afterSpinAction: { spinning = false }
-                )
-            }
-            
-            Task {
-                try? await Task.sleep(for: .seconds(
-                    Config.Hook.autoSpinDurs[0] + Config.Hook.autoSpinDurs[1] + Config.Hook.autoSpinWaitTime * 2
-                ))
-                
-                spin(
-                    win: spinCount == winAutoSpin,
-                    spinTime: Config.Hook.autoSpinDurs[2],
-                    spinImageAmount: 30,
-                    afterSpinAction: { spinning = false }
-                )
+            for i in 0...2 {
+                Task {
+                    try? await Task.sleep(for: .seconds(autoSpinDelays[i]))
+                    
+                    spin(
+                        win: spinCount == winAutoSpin,
+                        spinTime: Config.Hook.autoSpinTimes[i],
+                        spinImageAmount: Config.Hook.autoSpinImageAmounts[i],
+                        spinVolume: Config.Hook.autoSpinVolumes[i],
+                        afterSpinAction: { spinning = false }
+                    )
+                }
             }
             
             Task {

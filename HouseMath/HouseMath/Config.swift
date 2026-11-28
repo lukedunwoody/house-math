@@ -21,8 +21,11 @@ enum Config {
         
         static let baseSpinTime: Double         = 4.0
         static let baseSpinImageAmount: Int     = 40
+        static let baseSpinVolume: Float        = 1.0
         
-        static let autoSpinDurs: [Double]       = [2, 1.6, 1.2]
+        static let autoSpinTimes: [Double]      = [2, 1.6, 1.2]
+        static let autoSpinImageAmounts: [Int]  = [30, 25, 20]
+        static let autoSpinVolumes: [Float]     = [0.7, 0.5, 0.3]
         static let autoSpinWaitTime: Double     = 0.2
         static let machineFadeDelay: Double     = 2.0
         static let machineFadeDur: Double       = 4.0
