@@ -54,9 +54,7 @@ struct SplashTransitionView: View {
     }
 
     private func delayContract() async {
-        try? await Task.sleep(
-            nanoseconds: UInt64(Config.Splash.fadeInDur + Config.Splash.transitionHoldDur) * 1_000_000_000
-        )
+        try? await Task.sleep(for: .seconds(Config.Splash.fadeInDur + Config.Splash.transitionHoldDur))
         isCotracted = true
     }
 }

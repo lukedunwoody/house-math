@@ -36,23 +36,17 @@ struct ContentView: View {
     }
     
     private func showTransition() async {
-        try? await Task.sleep(
-            nanoseconds: UInt64(Config.Splash.transitionDelay * 1_000_000_000)
-        )
+        try? await Task.sleep(for: .seconds(Config.Splash.transitionDelay))
         showTransition = true
     }
     
     private func hideSplash() async {
-        try? await Task.sleep(
-            nanoseconds: UInt64((Config.Splash.transitionDelay + Config.Splash.fadeInDur + Config.Splash.transitionHoldDur * 0.5) * 1_000_000_000)
-        )
+        try? await Task.sleep(for: .seconds(Config.Splash.transitionDelay + Config.Splash.fadeInDur + Config.Splash.transitionHoldDur * 0.5))
         showSplash = false
     }
     
     private func hideTransition() async {
-        try? await Task.sleep(
-            nanoseconds: UInt64((Config.Splash.fadeInDur + Config.Splash.transitionHoldDur + Config.Splash.fadeOutDur) * 1_000_000_000)
-        )
+        try? await Task.sleep(for: .seconds(Config.Splash.fadeInDur + Config.Splash.transitionHoldDur + Config.Splash.fadeOutDur))
         showTransition = false
     }
     
