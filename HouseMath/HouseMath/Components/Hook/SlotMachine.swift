@@ -173,12 +173,11 @@ struct SlotReel: View, Animatable {
 }
 
 struct SlotMachine: View {
-    let spinTime: Double
-    let spinImageAmount: Int
-
     struct SpinRequest {
         var spinNumber: Int
         var win: Bool
+        var spinTime: Double
+        var spinImageAmount: Int
     }
 
     @Binding var spinRequest: SpinRequest
@@ -250,8 +249,8 @@ struct SlotMachine: View {
         (0..<3).map { _ in Self.randomImage() }
     }
 
-    func spin(win: Bool) -> Void {
-        guard !spinning, spinImageAmount >= 5, spinTime > 0 else { return }
+    func spin(win: Bool, spinTime: Double, spinImageAmount: Int) -> Void {
+        guard !spinning, spinTime > 0, spinImageAmount >= 5 else { return }
         
         let currentVisibleImages = reelImages.indices.map { i in
             let images = reelImages[i]
@@ -305,7 +304,7 @@ struct SlotMachine: View {
         }
 
         Task {
-            try? await Task.sleep(nanoseconds: UInt64(spinTime * 1_000_000_000))
+            try? await Task.sleep(for: .seconds(spinTime))
             spinning = false
         }
     }
@@ -467,7 +466,11 @@ struct SlotMachine: View {
             )
         }
         .onChange(of: spinRequest.spinNumber) { _, _ in
-            spin(win: spinRequest.win)
+            spin(
+                win: spinRequest.win,
+                spinTime: spinRequest.spinTime,
+                spinImageAmount: spinRequest.spinImageAmount
+            )
         }
     }
 }
@@ -475,7 +478,9 @@ struct SlotMachine: View {
 private struct SlotMachinePreview: View {
     @State private var spinRequest = SlotMachine.SpinRequest(
         spinNumber: 0,
-        win: true
+        win: true,
+        spinTime: 4,
+        spinImageAmount: 40
     )
     
     var body: some View {
@@ -484,16 +489,14 @@ private struct SlotMachinePreview: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                SlotMachine(
-                    spinTime: 4,
-                    spinImageAmount: 40,
-                    spinRequest: $spinRequest
-                )
+                SlotMachine(spinRequest: $spinRequest)
 
                 Button("Spin") {
                     spinRequest = .init(
                         spinNumber: spinRequest.spinNumber + 1,
-                        win: true
+                        win: true,
+                        spinTime: 4,
+                        spinImageAmount: 40
                     )
                 }
             }

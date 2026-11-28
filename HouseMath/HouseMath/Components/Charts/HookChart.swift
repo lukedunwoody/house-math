@@ -1,0 +1,96 @@
+//
+//  HookChart.swift
+//  HouseMath
+//
+//  Created by Luke Dunwoody on 2026-11-27.
+//
+
+import SwiftUI
+import Charts
+
+struct DataPoint: Identifiable {
+    let id = UUID()
+    let spinNumber: Int
+    let balance: Double
+}
+
+struct HookChart: View {
+    let data: [DataPoint] = [
+        DataPoint(spinNumber: 0, balance: 100),
+        DataPoint(spinNumber: 1, balance: 95),
+        DataPoint(spinNumber: 2, balance: 103),
+        DataPoint(spinNumber: 3, balance: 98),
+        DataPoint(spinNumber: 4, balance: 93),
+        DataPoint(spinNumber: 10, balance: 90),
+        DataPoint(spinNumber: 50, balance: 80)
+    ]
+    
+    var body: some View {
+        VStack {
+            Text("Demo Balance Over Time")
+                .foregroundStyle(.text)
+            
+            Chart {
+                ForEach(data) { point in
+                    LineMark(
+                        x: .value("Spin Number", point.spinNumber),
+                        y: .value("Balance", point.balance)
+                    )
+                    .foregroundStyle(.red)
+                    .lineStyle(StrokeStyle(lineWidth: 4))
+                    .interpolationMethod(.monotone)
+                    
+                    AreaMark(
+                        x: .value("Spin Number", point.spinNumber),
+                        y: .value("Balance", point.balance)
+                    )
+                    .foregroundStyle(
+                        .linearGradient(
+                            colors: [.red.opacity(0.3), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .lineStyle(StrokeStyle(lineWidth: 4))
+                    .interpolationMethod(.monotone)
+                }
+            }
+            .chartXAxis() {
+                AxisMarks(position: .bottom) {
+                    AxisTick()
+                        .foregroundStyle(.text)
+                    AxisGridLine()
+                        .foregroundStyle(.text)
+                    AxisValueLabel()
+                        .foregroundStyle(.text)
+                }
+            }
+            .chartYAxis() {
+                AxisMarks(position: .leading) {
+                    AxisTick()
+                        .foregroundStyle(.text)
+                    AxisGridLine()
+                        .foregroundStyle(.text)
+                    AxisValueLabel("$\($0.as(Int.self) ?? 0)")
+                        .foregroundStyle(.text)
+                }
+            }
+            .chartXScale(domain: 0...100)
+            .chartYScale(domain: 0...200)
+            .chartXAxisLabel {
+                Text("Spin Number")
+                    .foregroundStyle(.text)
+            }
+        }
+    }
+}
+
+#Preview {
+    ZStack {
+        Color.background
+            .ignoresSafeArea()
+
+        HookChart()
+            .frame(width: 344, height: 200)
+    }
+}
